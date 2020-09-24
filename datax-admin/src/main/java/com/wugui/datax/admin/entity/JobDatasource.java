@@ -1,5 +1,7 @@
 package com.wugui.datax.admin.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -9,7 +11,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * jdbc数据源配置实体类(job_jdbc_datasource)
@@ -131,6 +138,19 @@ public class JobDatasource extends Model<JobDatasource> {
      */
     @ApiModelProperty(value = "数据库名", hidden = true)
     private String databaseName;
+    
+    /**
+     * 额外的配置，Json格式保存
+     */
+    @ApiModelProperty(value = "额外配置，Json格式保存", hidden = true)
+    private String extra;
+    
+    /**
+     * 针对file类型的数据源同步字段的配置
+     */
+    @ApiModelProperty(value = "针对file类型的数据源同步字段的配置", hidden = true)
+    private String columnx;
+    
     /**
      * 获取主键值
      *
@@ -139,5 +159,53 @@ public class JobDatasource extends Model<JobDatasource> {
     @Override
     protected Serializable pkVal() {
         return this.id;
+    }
+    
+    /**
+     * 获取字段List
+     * @return List
+     */
+    public List<JSONObject> getColumnxList() {
+    	List<JSONObject> columnMapList = null;
+    	if (StringUtils.isNotBlank(this.getColumnx())) {
+    		columnMapList = JSONArray.parseArray(this.getColumnx(), JSONObject.class);
+    	}
+    	return columnMapList == null ? new ArrayList<>() : columnMapList;
+    }
+    
+    /**
+     * 获取扩展属性的Json
+     * @return
+     */
+    public JSONObject getExtraJson() {
+    	JSONObject extra = null;
+    	if (StringUtils.isNotBlank(this.getExtra())) {
+        	extra = JSONObject.parseObject(this.getExtra());
+        }
+    	return null == extra ? new JSONObject() : extra;
+    }
+    
+    /**
+     * 获取端口
+     * @return
+     */
+    public String getPort() {
+        return getExtraJson().getString("port");
+    }
+    
+    /**
+     * 获取编码
+     * @return
+     */
+    public String getEncoding() {
+    	return getExtraJson().getString("encoding");
+    }
+    
+    /**
+     * 获取字段分隔符
+     * @return
+     */
+    public String getFieldDelimiter() {
+    	return getExtraJson().getString("fieldDelimiter");
     }
 }
